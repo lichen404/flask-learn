@@ -5,6 +5,7 @@ import sys
 import click
 from flask import Flask, render_template, request, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash,check_password_hash
 
 # SQLite URI compatible
 WIN = sys.platform.startswith('win')
@@ -37,7 +38,7 @@ def forge():
     """Generate fake data."""
     db.create_all()
 
-    name = 'Grey Li'
+    name = 'Li Chen'
     movies = [
         {'title': 'My Neighbor Totoro', 'year': '1988'},
         {'title': 'Dead Poets Society', 'year': '1989'},
@@ -64,7 +65,12 @@ def forge():
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
-
+    username = db.Column(db.String(20))
+    password_hash = db.Column(db.String(128))
+    def set_password(self,password):
+        self.password_hash = generate_password_hash(password)
+    def validate_password(self,password):
+        return check_password_hash(self.password_hash,password)
 
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
